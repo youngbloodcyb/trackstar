@@ -16,6 +16,8 @@ function App() {
   const [fileContent, setFileContent] = useState<string>("");
   const [value, setValue] = useState("");
   const [fileType, setFileType] = useState<"js" | "py">("js");
+  const [cronSchedule, setCronSchedule] = useState("");
+  const [cronCommand, setCronCommand] = useState("");
 
   const onChange = useCallback((val: string, _viewUpdate: any) => {
     console.log("val:", val);
@@ -55,6 +57,20 @@ function App() {
       }
     } catch (err) {
       console.error("Error reading file:", err);
+    }
+  };
+
+  const createCronJob = async () => {
+    try {
+      const response = await invoke("create_cron_job", {
+        schedule: cronSchedule,
+        command: cronCommand,
+      });
+      console.log(response);
+      // Show success message to user
+    } catch (error) {
+      console.error("Error creating cron job:", error);
+      // Show error message to user
     }
   };
 
@@ -124,6 +140,21 @@ function App() {
           />
         </div>
       )}
+
+      <div className="flex flex-col gap-4 w-full max-w-md">
+        <h2 className="text-2xl font-bold">Create Cron Job</h2>
+        <Input
+          placeholder="Cron Schedule (e.g., */5 * * * *)"
+          value={cronSchedule}
+          onChange={(e) => setCronSchedule(e.currentTarget.value)}
+        />
+        <Input
+          placeholder="Command to execute"
+          value={cronCommand}
+          onChange={(e) => setCronCommand(e.currentTarget.value)}
+        />
+        <Button onClick={createCronJob}>Create Cron Job</Button>
+      </div>
     </main>
   );
 }
