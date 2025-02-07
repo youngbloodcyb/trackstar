@@ -1,14 +1,23 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import reactLogo from "./assets/react.svg";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 import { open } from "@tauri-apps/plugin-dialog";
 import { readTextFile } from "@tauri-apps/plugin-fs";
+import CodeMirror from "@uiw/react-codemirror";
+import { javascript } from "@codemirror/lang-javascript";
+import { tokyoNight } from "@uiw/codemirror-theme-tokyo-night";
 
 function App() {
   const [greetMsg, setGreetMsg] = useState("");
   const [name, setName] = useState("");
   const [fileContent, setFileContent] = useState<string>("");
+  const [value, setValue] = useState("");
+
+  const onChange = useCallback((val: string, _viewUpdate: any) => {
+    console.log("val:", val);
+    setValue(val);
+  }, []);
 
   async function greet() {
     // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
@@ -23,7 +32,8 @@ function App() {
         filters: [
           {
             name: "Code",
-            extensions: ["js", "py"],
+            // extensions: ["js", "py"],
+            extensions: ["js"],
           },
         ],
       });
@@ -34,6 +44,7 @@ function App() {
         const contents = await readTextFile(selected as string);
         console.log("File contents:", contents);
         setFileContent(contents);
+        setValue(contents);
       }
     } catch (err) {
       console.error("Error reading file:", err);
@@ -75,7 +86,15 @@ function App() {
 
       <button onClick={handleOpenFile}>Open File (.js or .py)</button>
 
-      {fileContent && <pre>{fileContent}</pre>}
+      {fileContent && (
+        <CodeMirror
+          value={value}
+          height="200px"
+          theme={tokyoNight}
+          extensions={[javascript({ jsx: true })]}
+          onChange={onChange}
+        />
+      )}
     </main>
   );
 }
