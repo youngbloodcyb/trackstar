@@ -1,7 +1,6 @@
 import { useCallback, useState } from "react";
 import reactLogo from "./assets/react.svg";
 import { invoke } from "@tauri-apps/api/core";
-import "./App.css";
 import { open } from "@tauri-apps/plugin-dialog";
 import { readTextFile } from "@tauri-apps/plugin-fs";
 import CodeMirror from "@uiw/react-codemirror";
@@ -52,48 +51,79 @@ function App() {
   };
 
   return (
-    <main className="container">
-      <h1>Welcome to Tauri + React</h1>
+    <main className="flex min-h-screen flex-col items-center p-8 gap-8">
+      <div className="flex flex-col items-center gap-4">
+        <h1 className="text-4xl font-bold tracking-tight">
+          Welcome to Tauri + React
+        </h1>
 
-      <div className="row">
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <div className="flex items-center gap-6">
+          <a
+            href="https://vitejs.dev"
+            target="_blank"
+            className="transition-transform hover:scale-110"
+          >
+            <img src="/vite.svg" className="h-16 w-16" alt="Vite logo" />
+          </a>
+          <a
+            href="https://tauri.app"
+            target="_blank"
+            className="transition-transform hover:scale-110"
+          >
+            <img src="/tauri.svg" className="h-16 w-16" alt="Tauri logo" />
+          </a>
+          <a
+            href="https://reactjs.org"
+            target="_blank"
+            className="transition-transform hover:scale-110"
+          >
+            <img src={reactLogo} className="h-16 w-16" alt="React logo" />
+          </a>
+        </div>
+        <p className="text-muted-foreground">
+          Click on the Tauri, Vite, and React logos to learn more.
+        </p>
       </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
 
       <form
-        className="row"
+        className="flex gap-4 items-center"
         onSubmit={(e) => {
           e.preventDefault();
           greet();
         }}
       >
         <input
+          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           id="greet-input"
           onChange={(e) => setName(e.currentTarget.value)}
           placeholder="Enter a name..."
         />
-        <button type="submit">Greet</button>
+        <button
+          className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+          type="submit"
+        >
+          Greet
+        </button>
       </form>
-      <p>{greetMsg}</p>
+      <p className="text-sm">{greetMsg}</p>
 
-      <button onClick={handleOpenFile}>Open File (.js or .py)</button>
+      <button
+        onClick={handleOpenFile}
+        className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2"
+      >
+        Open File (.js or .py)
+      </button>
 
       {fileContent && (
-        <CodeMirror
-          value={value}
-          height="200px"
-          theme={tokyoNight}
-          extensions={[javascript({ jsx: true })]}
-          onChange={onChange}
-        />
+        <div className="w-full max-w-3xl rounded-lg border bg-card text-card-foreground shadow-sm">
+          <CodeMirror
+            value={value}
+            height="400px"
+            theme={tokyoNight}
+            extensions={[javascript({ jsx: true })]}
+            onChange={onChange}
+          />
+        </div>
       )}
     </main>
   );
