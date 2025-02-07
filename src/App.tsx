@@ -5,13 +5,17 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { readTextFile } from "@tauri-apps/plugin-fs";
 import CodeMirror from "@uiw/react-codemirror";
 import { javascript } from "@codemirror/lang-javascript";
+import { python } from "@codemirror/lang-python";
 import { tokyoNight } from "@uiw/codemirror-theme-tokyo-night";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 function App() {
   const [greetMsg, setGreetMsg] = useState("");
   const [name, setName] = useState("");
   const [fileContent, setFileContent] = useState<string>("");
   const [value, setValue] = useState("");
+  const [fileType, setFileType] = useState<"js" | "py">("js");
 
   const onChange = useCallback((val: string, _viewUpdate: any) => {
     console.log("val:", val);
@@ -31,16 +35,20 @@ function App() {
         filters: [
           {
             name: "Code",
-            // extensions: ["js", "py"],
-            extensions: ["js"],
+            extensions: ["js", "py"],
           },
         ],
       });
 
       // Check if file was selected (user didn't cancel)
       if (selected) {
+        // Determine file type from extension
+        const filePath = selected as string;
+        const extension = filePath.split(".").pop()?.toLowerCase();
+        setFileType(extension === "py" ? "py" : "js");
+
         // Read the file contents
-        const contents = await readTextFile(selected as string);
+        const contents = await readTextFile(filePath);
         console.log("File contents:", contents);
         setFileContent(contents);
         setValue(contents);
@@ -92,27 +100,16 @@ function App() {
           greet();
         }}
       >
-        <input
-          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        <Input
           id="greet-input"
           onChange={(e) => setName(e.currentTarget.value)}
           placeholder="Enter a name..."
         />
-        <button
-          className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-          type="submit"
-        >
-          Greet
-        </button>
+        <Button type="submit">Greet</Button>
       </form>
       <p className="text-sm">{greetMsg}</p>
 
-      <button
-        onClick={handleOpenFile}
-        className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2"
-      >
-        Open File (.js or .py)
-      </button>
+      <Button onClick={handleOpenFile}>Open File (.js or .py)</Button>
 
       {fileContent && (
         <div className="w-full max-w-3xl rounded-lg border bg-card text-card-foreground shadow-sm">
@@ -120,7 +117,9 @@ function App() {
             value={value}
             height="400px"
             theme={tokyoNight}
-            extensions={[javascript({ jsx: true })]}
+            extensions={[
+              fileType === "py" ? python() : javascript({ jsx: true }),
+            ]}
             onChange={onChange}
           />
         </div>
